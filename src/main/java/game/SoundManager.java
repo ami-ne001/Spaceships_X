@@ -8,8 +8,6 @@ public class SoundManager {
     public static final int BACKGROUND_MUSIC = 0;
     public static final int SHOOT_SOUND = 1;
     public static final int EXPLOSION_SOUND = 2;
-    public static final int HIT_SOUND = 3;
-    public static final int GAMEOVER_SOUND = 4;
 
     private Clip[] sounds;
     private Clip backgroundMusic;
@@ -17,14 +15,14 @@ public class SoundManager {
     private boolean soundOn = true;
 
     public SoundManager() {
-        sounds = new Clip[5];
+        sounds = new Clip[3];
         loadSounds();
     }
 
     private void loadSounds() {
         try {
             // Load background music
-            URL url = getClass().getResource("/sound/bgmusic.wav");
+            URL url = getClass().getResource("/sound/bg_music.wav");
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
             backgroundMusic = AudioSystem.getClip();
             backgroundMusic.open(audioIn);
@@ -40,18 +38,6 @@ public class SoundManager {
             audioIn = AudioSystem.getAudioInputStream(url);
             sounds[EXPLOSION_SOUND] = AudioSystem.getClip();
             sounds[EXPLOSION_SOUND].open(audioIn);
-
-            // Load hit sound
-            url = getClass().getResource("/sound/hit.wav");
-            audioIn = AudioSystem.getAudioInputStream(url);
-            sounds[HIT_SOUND] = AudioSystem.getClip();
-            sounds[HIT_SOUND].open(audioIn);
-
-            // Load hit sound
-            url = getClass().getResource("/sound/gameover.wav");
-            audioIn = AudioSystem.getAudioInputStream(url);
-            sounds[GAMEOVER_SOUND] = AudioSystem.getClip();
-            sounds[GAMEOVER_SOUND].open(audioIn);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }

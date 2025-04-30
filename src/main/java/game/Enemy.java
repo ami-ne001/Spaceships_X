@@ -16,7 +16,6 @@ public class Enemy {
     private int height = 48;
     private int health;
     private int points;
-    private int type;
 
     // Enemy image
     private BufferedImage image;
@@ -29,13 +28,12 @@ public class Enemy {
 
     // Shooting
     private int shootCooldown = 0;
-    private int shootCooldownMax = 40;
+    private int shootCooldownMax = 120;  // Augmenter le cooldown
 
     public Enemy(GamePanel gp, int x, int y, int type) {
         this.gp = gp;
         this.x = x;
         this.y = y;
-        this.type = type;
 
         // Set enemy type (1 = easy, 2 = medium, 3 = hard)
         switch (type) {
@@ -45,7 +43,7 @@ public class Enemy {
                 points = 10;
                 movementPattern = 0;
                 try {
-                    image = ImageIO.read(getClass().getResourceAsStream("/enemy/enemyship1.png"));
+                    image = ImageIO.read(getClass().getResourceAsStream("/enemy/enemyship11.png"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -62,7 +60,7 @@ public class Enemy {
                 }
                 break;
             case 3:
-                speed = 2;
+                speed = 3;
                 health = 3;
                 points = 30;
                 movementPattern = 2;
@@ -78,6 +76,7 @@ public class Enemy {
     }
 
     public void update() {
+        // Movement patterns
         switch (movementPattern) {
             case 0: // Straight down
                 y += speed;
@@ -86,7 +85,7 @@ public class Enemy {
                 y += speed;
                 x += (int)(Math.sin(movementCounter * 0.1) * 2);
                 break;
-            case 2: // Zigzag
+            case 2: // Circular
                 y += speed;
                 x += (int)(Math.cos(movementCounter * 0.1) * 3);
                 break;
@@ -100,13 +99,7 @@ public class Enemy {
         // Shooting
         if (shootCooldown > 0) {
             shootCooldown--;
-        } else if (type == 1 && random.nextInt(200) < 1) {   // 0.5% de chance de tirer
-            gp.getProjectileManager().addEnemyProjectile(x + width / 2, y + height);
-            shootCooldown = shootCooldownMax;
-        } else if (type == 2 && random.nextInt(100) < 1) {   // 1% de chance de tirer
-            gp.getProjectileManager().addEnemyProjectile(x + width / 2, y + height);
-            shootCooldown = shootCooldownMax;
-        } else if (type == 3 && random.nextInt(50) < 1) {   // 2% de chance de tirer
+        } else if (random.nextInt(200) < 1) {  // Seulement 0.5% de chance de tirer
             gp.getProjectileManager().addEnemyProjectile(x + width / 2, y + height);
             shootCooldown = shootCooldownMax;
         }
@@ -124,17 +117,18 @@ public class Enemy {
             gp.getEnemyManager().removeEnemy(this);
 
             // Create explosion animation
-            gp.getProjectileManager().addExplosion(x + width / 2, y + height / 2);
-            return;
+            gp.getProjectileManager().addExplosion(x, y);
         }
-        gp.getSoundManager().playSound(SoundManager.HIT_SOUND);
     }
 
+    public Rectangle getHitbox() {
+        return hitbox;
+    }
 
     public boolean isOffScreen() {
         return y > gp.getScreenHeight();
     }
-    public Rectangle getHitbox() { return hitbox; }
+
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }

@@ -7,45 +7,56 @@ public class KeyHandler implements KeyListener {
     public boolean upPressed, downPressed, leftPressed, rightPressed;
     public boolean shootPressed;
     public boolean spacePressed;
+    public boolean enterPressed;
     public boolean rPressed;
-    public boolean pausePressed, resumePressed;
+    public boolean escapePressed;
+    public boolean keyPressed = false;
+
+    char lastKeyChar;
+    int lastKeyCode;
 
     @Override
     public void keyTyped(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
-        int code = e.getKeyCode();
+        lastKeyCode = e.getKeyCode();
+        keyPressed = true;
+        lastKeyChar = e.getKeyChar();
 
         // Movement controls (both arrow keys and WASD)
-        if (code == KeyEvent.VK_UP || code == KeyEvent.VK_W) upPressed = true;
-        if (code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) downPressed = true;
-        if (code == KeyEvent.VK_LEFT || code == KeyEvent.VK_A) leftPressed = true;
-        if (code == KeyEvent.VK_RIGHT || code == KeyEvent.VK_D) rightPressed = true;
+        if (lastKeyCode == KeyEvent.VK_UP || lastKeyCode == KeyEvent.VK_W) upPressed = true;
+        if (lastKeyCode == KeyEvent.VK_DOWN || lastKeyCode == KeyEvent.VK_S) downPressed = true;
+        if (lastKeyCode == KeyEvent.VK_LEFT || lastKeyCode == KeyEvent.VK_A) leftPressed = true;
+        if (lastKeyCode == KeyEvent.VK_RIGHT || lastKeyCode == KeyEvent.VK_D) rightPressed = true;
+        if (lastKeyCode == KeyEvent.VK_ENTER) enterPressed = true;
+        if (lastKeyCode == KeyEvent.VK_ESCAPE) escapePressed = true;
 
         // Shooting controls
-        if (code == KeyEvent.VK_SPACE) {
+        if (lastKeyCode == KeyEvent.VK_SPACE) {
             if (!spacePressed) {
                 shootPressed = true;
             }
+            spacePressed = true;
         }
 
         // Restart game when game over
-        if (code == KeyEvent.VK_R) rPressed = true;
-        if (code == KeyEvent.VK_P) { pausePressed = (!pausePressed)? true : false; }
+        if (lastKeyCode == KeyEvent.VK_R) rPressed = true;
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        int code = e.getKeyCode();
+        lastKeyCode = e.getKeyCode();
 
-        if (code == KeyEvent.VK_UP || code == KeyEvent.VK_W) upPressed = false;
-        if (code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) downPressed = false;
-        if (code == KeyEvent.VK_LEFT || code == KeyEvent.VK_A) leftPressed = false;
-        if (code == KeyEvent.VK_RIGHT || code == KeyEvent.VK_D) rightPressed = false;
-        if (code == KeyEvent.VK_SPACE) {
+        if (lastKeyCode == KeyEvent.VK_UP || lastKeyCode == KeyEvent.VK_W) upPressed = false;
+        if (lastKeyCode == KeyEvent.VK_DOWN || lastKeyCode == KeyEvent.VK_S) downPressed = false;
+        if (lastKeyCode == KeyEvent.VK_LEFT || lastKeyCode == KeyEvent.VK_A) leftPressed = false;
+        if (lastKeyCode == KeyEvent.VK_RIGHT || lastKeyCode == KeyEvent.VK_D) rightPressed = false;
+        if (lastKeyCode == KeyEvent.VK_SPACE) {
             spacePressed = false;
             shootPressed = false;
         }
+        if (lastKeyCode == KeyEvent.VK_R) rPressed = false;
+        if (lastKeyCode == KeyEvent.VK_ESCAPE) escapePressed = false;
     }
 }

@@ -2,7 +2,6 @@ package game;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ProjectileManager {
     private GamePanel gp;
@@ -11,6 +10,10 @@ public class ProjectileManager {
 
     public ProjectileManager(GamePanel gp) {
         this.gp = gp;
+    }
+
+    public void addProjectile(Projectile projectile) {
+        projectiles.add(projectile);
     }
 
     public void update() {
@@ -52,11 +55,9 @@ public class ProjectileManager {
     public void addPlayerProjectile(int x, int y) {
         projectiles.add(new Projectile(gp, x, y, true));
     }
-
     public void addEnemyProjectile(int x, int y) {
         projectiles.add(new Projectile(gp, x, y, false));
     }
-
     public void addExplosion(int x, int y) {
         explosions.add(new Explosion(gp, x, y));
     }
@@ -64,7 +65,6 @@ public class ProjectileManager {
     public void clearProjectiles() {
         projectiles.clear();
     }
-
     public void clearExplosions() {
         explosions.clear();
     }
@@ -72,10 +72,7 @@ public class ProjectileManager {
     public ArrayList<Projectile> getProjectiles() {
         return projectiles;
     }
-
     public ArrayList<Explosion> getExplosions() {
         return explosions;
     }
-
-
 }

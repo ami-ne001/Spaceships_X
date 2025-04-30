@@ -12,9 +12,10 @@ public class Player {
     // Player position and stats
     private int x, y;
     private int speed = 4;
-    private int width = 48;
-    private int height = 48;
-    private int lives = 3;
+    private int maxHealth;
+    private int width;
+    private int height;
+    private int lives;
 
     // Player image
     private BufferedImage image;
@@ -31,6 +32,8 @@ public class Player {
         // Set initial position
         x = gp.getScreenWidth() / 2 - width / 2;
         y = gp.getScreenHeight() - height - 20;
+        width = gp.getTileSize();
+        height = gp.getTileSize();
 
         // Load player image
         try {
@@ -41,6 +44,24 @@ public class Player {
 
         // Initialize hitbox
         hitbox = new Rectangle(x, y, width, height);
+    }
+    public void applyShipStats(Ship ship) {
+        this.speed = ship.getSpeed();          // Set movement speed
+        this.maxHealth = ship.getHealth();     // Set max health
+        this.lives = maxHealth;              // For shooting
+        setImage(ship.getImage());            // Change appearance
+    }
+
+    public void setImage(BufferedImage image) {
+        if (image != null) {
+            this.image = image;
+            updateHitbox(); // Make sure hitbox matches new size
+        }
+    }
+
+    private void updateHitbox(){
+        this.hitbox.width = this.width;
+        this.hitbox.height = this.height;
     }
 
     public void update() {
@@ -70,22 +91,24 @@ public class Player {
         g2.drawImage(image, x, y, width, height, null);
     }
 
+    public Rectangle getHitbox() {
+        return hitbox;
+    }
 
     public void takeDamage() {
         lives--;
         if (lives <= 0) {
-            gp.getSoundManager().playSound(SoundManager.EXPLOSION_SOUND);
-            gp.getProjectileManager().addExplosion(x + width / 2, y + height / 2);
             gp.gameOver();
-            return;
         }
-        gp.getSoundManager().playSound(SoundManager.HIT_SOUND);
     }
 
-    public Rectangle getHitbox() { return hitbox; }
-    public int getLives() { return lives; }
+    public int getLives() {
+        return lives;
+    }
+
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
+    public int getMaxHealth() { return maxHealth; }
 }
