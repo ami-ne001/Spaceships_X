@@ -183,9 +183,14 @@ public class GamePanel extends JPanel implements Runnable {
     public void restartGame(){
         score = 0;
         level = 1;
+        enemyManager.setLevel(level);
         gameOver = false;
         gameState = STATE_PLAYING;
         enemiesDefeated = 0;
+        playerLives = selectedShip.getHealth();
+        player.setX(getScreenWidth() / 2 - getTileSize() / 2);
+        player.setY(getScreenHeight() - getTileSize() - 20);
+        player.setlives(playerLives);
 
         // Clear all game objects
         if (enemyManager != null) {
@@ -200,10 +205,6 @@ public class GamePanel extends JPanel implements Runnable {
         if (soundManager != null) {
             soundManager.playBackgroundMusic();
         }
-        playerLives = selectedShip.getHealth();
-        player.setX(getScreenWidth() / 2 - getTileSize() / 2);
-        player.setY(getScreenHeight() - getTileSize() - 20);
-        player.setlives(playerLives);
     }
 
     @Override
