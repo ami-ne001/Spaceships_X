@@ -116,7 +116,6 @@ public class GamePanel extends JPanel implements Runnable {
                     enemyManager.update();
                     projectileManager.update();
                     collisionChecker.checkCollisions();
-
                     // Level progression
                     if (score >= 100 && level < 2) {
                         level = 2;
@@ -127,12 +126,14 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                 } else {
                     gameState = STATE_GAME_OVER;
-                    dbManager.updateHighscore(currentUser, score);
+                    if(score> dbManager.getHighscore(currentUser)) {
+                        dbManager.updateHighscore(currentUser, score);
+                    }
                 }
                 break;
             case STATE_GAME_OVER:
                 if (keyHandler.rPressed) {
-                    startGame();
+                    restartGame();
                     keyHandler.rPressed = false;
                 }else if(keyHandler.escapePressed){
                     startGame();
@@ -163,11 +164,11 @@ public class GamePanel extends JPanel implements Runnable {
 
         // Clear all game objects
         if (enemyManager != null) {
-            enemyManager.getEnemies().clear();
+            enemyManager.clearEnemies();
         }
         if (projectileManager != null) {
-            projectileManager.getProjectiles().clear();
-            projectileManager.getExplosions().clear();
+            projectileManager.clearProjectiles();
+            projectileManager.clearExplosions();
         }
 
         // Reinitialize game
@@ -177,6 +178,32 @@ public class GamePanel extends JPanel implements Runnable {
         if (soundManager != null) {
             soundManager.playBackgroundMusic();
         }
+    }
+
+    public void restartGame(){
+        score = 0;
+        level = 1;
+        gameOver = false;
+        gameState = STATE_PLAYING;
+        enemiesDefeated = 0;
+
+        // Clear all game objects
+        if (enemyManager != null) {
+            enemyManager.clearEnemies();
+        }
+        if (projectileManager != null) {
+            projectileManager.clearProjectiles();
+            projectileManager.clearExplosions();
+        }
+
+        // Restart background music if sound is enabled
+        if (soundManager != null) {
+            soundManager.playBackgroundMusic();
+        }
+        playerLives = selectedShip.getHealth();
+        player.setX(getScreenWidth() / 2 - getTileSize() / 2);
+        player.setY(getScreenHeight() - getTileSize() - 20);
+        player.setlives(playerLives);
     }
 
     @Override

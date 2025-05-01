@@ -11,9 +11,9 @@ public class Player {
 
     // Player position and stats
     private int x, y;
-    private int speed = 4;
+    private int speed;
     private int maxHealth;
-    private int width;
+    private int width ;
     private int height;
     private int lives;
 
@@ -30,10 +30,11 @@ public class Player {
         this.keyHandler = keyHandler;
 
         // Set initial position
-        x = gp.getScreenWidth() / 2 - width / 2;
-        y = gp.getScreenHeight() - height - 20;
         width = gp.getTileSize();
         height = gp.getTileSize();
+        x = gp.getScreenWidth() / 2 - width / 2;
+        y = gp.getScreenHeight() - height - 20;
+
 
         // Load player image
         try {
@@ -54,14 +55,8 @@ public class Player {
 
     public void setImage(BufferedImage image) {
         if (image != null) {
-            this.image = image;
-            updateHitbox(); // Make sure hitbox matches new size
+            this.image = image; // Make sure hitbox matches new size
         }
-    }
-
-    private void updateHitbox(){
-        this.hitbox.width = this.width;
-        this.hitbox.height = this.height;
     }
 
     public void update() {
@@ -111,4 +106,8 @@ public class Player {
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public int getMaxHealth() { return maxHealth; }
+
+    public void setX(int x){this.x = x;}
+    public void setY(int y){this.y = y;}
+    public void setlives(int lives){this.lives = lives;}
 }

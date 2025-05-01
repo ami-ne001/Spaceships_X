@@ -14,9 +14,9 @@ public class CollisionChecker {
 
         // Check player-projectile collisions with enemies
         for (Projectile projectile : projectileManager.getProjectiles()) {
-            if (projectile.isPlayerProjectile()) {
-                for (Enemy enemy : enemyManager.getEnemies()) {
-                    if (projectile.getHitbox().intersects(enemy.getHitbox())) {
+            if (projectile.isPlayerProjectile()){
+                for (Enemy enemy : enemyManager.getEnemies()){
+                    if (projectile.getHitbox().intersects(enemy.getHitbox())){
                         enemy.takeDamage();
                         projectile.setActive(false);
                         break;
