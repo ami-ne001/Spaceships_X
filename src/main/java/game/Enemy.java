@@ -43,7 +43,7 @@ public class Enemy {
                 points = 10;
                 movementPattern = 0;
                 try {
-                    image = ImageIO.read(getClass().getResourceAsStream("/enemy/enemyship11.png"));
+                    image = ImageIO.read(getClass().getResourceAsStream("/enemy/enemyship1.png"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

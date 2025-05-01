@@ -83,7 +83,7 @@ public class ShipSelectionState {
 
         // Instructions
         g2.setColor(Color.LIGHT_GRAY);
-        g2.drawString("Use LEFT/RIGHT to select, SPACE to confirm",
+        g2.drawString("Use LEFT/RIGHT to select, ENTER to confirm",
                 getXForCenteredText("Use LEFT/RIGHT to select, ENTER to confirm", g2), 550);
         g2.drawString("Press ESC to go back",
                 getXForCenteredText("Press ESC to go back", g2), 580);

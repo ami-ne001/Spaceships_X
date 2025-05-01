@@ -18,7 +18,7 @@ public class MenuState {
         try {
             titleFont = new Font("Arial", Font.BOLD, 40);
             menuFont = new Font("Arial", Font.PLAIN, 30);
-             backgroundImage = ImageIO.read(getClass().getResourceAsStream("/background/space1.png"));
+             backgroundImage = ImageIO.read(getClass().getResourceAsStream("/background/space.png"));
             } catch (Exception e) {
             e.printStackTrace();
         }
