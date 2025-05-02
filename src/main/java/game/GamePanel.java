@@ -17,6 +17,7 @@ public class GamePanel extends JPanel implements Runnable {
     public static final int STATE_SHIP_SELECTION = 2;
     public static final int STATE_PLAYING = 3;
     public static final int STATE_GAME_OVER = 4;
+    public static final int STATE_CHAT = 5;
 
     // Game state
     private int FPS = 60;
@@ -41,6 +42,7 @@ public class GamePanel extends JPanel implements Runnable {
     private ShipSelectionState shipSelectionState;
     private String currentUser;
     private Ship selectedShip;
+    private ChatState chatState;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -51,6 +53,7 @@ public class GamePanel extends JPanel implements Runnable {
         dbManager = new DatabaseManager();
         account = new Account(this, dbManager);
         shipSelectionState = new ShipSelectionState(this);
+        this.chatState = new ChatState(this);
 
         // Initialize game components
         initGame();
@@ -111,6 +114,12 @@ public class GamePanel extends JPanel implements Runnable {
                 shipSelectionState.update();
                 break;
             case STATE_PLAYING:
+                if (keyHandler.tPressed) {
+                    chatState.activate();
+                    gameState = STATE_CHAT;
+                    keyHandler.tPressed = false;
+                    return; // Exit the update early since we're switching states
+                }
                 if (!gameOver) {
                     player.update();
                     enemyManager.update();
@@ -139,6 +148,9 @@ public class GamePanel extends JPanel implements Runnable {
                     startGame();
                     gameState = STATE_MENU;
                 }
+                break;
+            case STATE_CHAT:
+                chatState.update();
                 break;
         }
     }
@@ -244,6 +256,9 @@ public class GamePanel extends JPanel implements Runnable {
             case STATE_SHIP_SELECTION:
                 shipSelectionState.draw(g2);
                 break;
+            case STATE_CHAT:
+                chatState.draw(g2);
+                break;
         }
 
         g2.dispose();
@@ -273,4 +288,7 @@ public class GamePanel extends JPanel implements Runnable {
         player.applyShipStats(ship);
     }
     public void setPlayerLives(int playerLives) { this.playerLives = playerLives; }
+    public String getCurrentUser() {
+        return this.currentUser;
+    }
 }

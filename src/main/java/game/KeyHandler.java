@@ -9,6 +9,7 @@ public class KeyHandler implements KeyListener {
     public boolean spacePressed;
     public boolean enterPressed;
     public boolean rPressed;
+    public boolean tPressed;
     public boolean escapePressed;
     public boolean keyPressed = false;
 
@@ -42,6 +43,8 @@ public class KeyHandler implements KeyListener {
 
         // Restart game when game over
         if (lastKeyCode == KeyEvent.VK_R) rPressed = true;
+
+        if (lastKeyCode == KeyEvent.VK_T) tPressed = true;
     }
 
     @Override
@@ -57,6 +60,7 @@ public class KeyHandler implements KeyListener {
             shootPressed = false;
         }
         if (lastKeyCode == KeyEvent.VK_R) rPressed = false;
+        if (lastKeyCode == KeyEvent.VK_T) tPressed = false;
         if (lastKeyCode == KeyEvent.VK_ESCAPE) escapePressed = false;
     }
 }
