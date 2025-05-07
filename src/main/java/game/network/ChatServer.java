@@ -30,11 +30,9 @@ public class ChatServer {
         }
     }
     
-    public static void broadcast(String message, ClientHandler excludeClient) {
+    public static void broadcast(String message) {
         for (ClientHandler client : clientHandlers) {
-            if (client != excludeClient) {
-                client.sendMessage(message);
-            }
+            client.sendMessage(message);
         }
     }
     
@@ -62,14 +60,14 @@ class ClientHandler implements Runnable {
             
             // First message should be the username
             username = in.readLine();
-            ChatServer.broadcast(username + " joined the chat!", this);
+            ChatServer.broadcast(username + " joined the chat!");
             
             String clientMessage;
             while ((clientMessage = in.readLine()) != null) {
                 if (clientMessage.equalsIgnoreCase("quit")) {
                     break;
                 }
-                ChatServer.broadcast(username + ": " + clientMessage, this);
+                ChatServer.broadcast(username + ": " + clientMessage);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,7 +78,7 @@ class ClientHandler implements Runnable {
                 e.printStackTrace();
             }
             ChatServer.removeClient(this);
-            ChatServer.broadcast(username + " left the chat!", this);
+            ChatServer.broadcast(username + " left the chat!");
         }
     }
     
