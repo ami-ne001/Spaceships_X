@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameClient {
-    private static final String SERVER_IP = "localhost";
+    private static String SERVER_IP = "localhost";
     private static final int SERVER_PORT = 5000;
     private static final int RECONNECT_DELAY = 1000; // 1 second
     private static final int MAX_RECONNECT_ATTEMPTS = 3;
@@ -329,5 +329,9 @@ public class GameClient {
 
     public void setHost(boolean isHost) {
         this.isHost = isHost;
+    }
+
+    public static void setServerIP(String ip) {
+        SERVER_IP = ip;
     }
 } 

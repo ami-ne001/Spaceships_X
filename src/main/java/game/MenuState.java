@@ -80,22 +80,17 @@ public class MenuState {
     }
 
     private void startMultiplayerGame(boolean isHost) {
-        // Initialize multiplayer
-        gp.startMultiplayerGame(isHost);
-        
-        if (!isHost) {
-            multiplayerStatus = "Joining game...";
-        } else {
+        if (isHost) {
+            // Initialize multiplayer as host
+            gp.startMultiplayerGame(true, null);
             multiplayerStatus = "Hosting game... Waiting for players";
+            gp.setGameState(GamePanel.STATE_ACCOUNT);
+        } else {
+            // Switch to IP input state
+            gp.setGameState(GamePanel.STATE_IP_INPUT);
+            multiplayerStatus = "";
+            hostingGame = false;
         }
-
-        // Only proceed to account state if connection is successful
-        if (!isHost && !gp.getGameClient().isConnected()) {
-            multiplayerStatus = "Failed to connect to server!";
-            return;
-        }
-
-        gp.setGameState(GamePanel.STATE_ACCOUNT);
     }
 
     public void draw(Graphics2D g2) {

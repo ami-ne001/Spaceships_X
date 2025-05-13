@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     public static final int STATE_SHIP_SELECTION = 2;
     public static final int STATE_PLAYING = 3;
     public static final int STATE_GAME_OVER = 4;
+    public static final int STATE_IP_INPUT = 5;  // New state for IP input
 
     // Game state
     private int FPS = 60;
@@ -43,6 +44,7 @@ public class GamePanel extends JPanel implements Runnable {
     private DatabaseManager dbManager;
     private Account account;
     private ShipSelectionState shipSelectionState;
+    private IPInputState ipInputState;  // Add IPInputState
     private String currentUser;
     private Ship selectedShip;
 
@@ -60,6 +62,7 @@ public class GamePanel extends JPanel implements Runnable {
         dbManager = new DatabaseManager();
         account = new Account(this, dbManager);
         shipSelectionState = new ShipSelectionState(this);
+        ipInputState = new IPInputState(this);  // Initialize IPInputState
 
         // Initialize game components
         initGame();
@@ -83,7 +86,7 @@ public class GamePanel extends JPanel implements Runnable {
         soundManager.playBackgroundMusic();
     }
 
-    public void startMultiplayerGame(boolean isHost) {
+    public void startMultiplayerGame(boolean isHost, String serverIP) {
         // Clear any existing multiplayer state
         if (gameClient != null) {
             gameClient.disconnect();
@@ -107,6 +110,10 @@ public class GamePanel extends JPanel implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            GameClient.setServerIP("localhost"); // Host uses localhost
+        } else {
+            // Client uses provided server IP
+            GameClient.setServerIP(serverIP);
         }
         
         // Connect to server
@@ -148,6 +155,9 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
             case STATE_SHIP_SELECTION:
                 shipSelectionState.update();
+                break;
+            case STATE_IP_INPUT:
+                ipInputState.update();
                 break;
             case STATE_PLAYING:
                 if (!gameOver) {
@@ -300,6 +310,9 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
             case STATE_SHIP_SELECTION:
                 shipSelectionState.draw(g2);
+                break;
+            case STATE_IP_INPUT:
+                ipInputState.draw(g2);
                 break;
         }
 
