@@ -1,9 +1,13 @@
 package game;
 
 import game.DAO.DatabaseManager;
+import game.network.GameClient;
+import game.network.GameServer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GamePanel extends JPanel implements Runnable {
     // Screen settings
@@ -42,6 +46,11 @@ public class GamePanel extends JPanel implements Runnable {
     private String currentUser;
     private Ship selectedShip;
 
+    // Multiplayer components
+    private GameClient gameClient;
+    private boolean isMultiplayer = false;
+    private Map<String, OtherPlayer> otherPlayers = new HashMap<>();
+
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
@@ -74,6 +83,36 @@ public class GamePanel extends JPanel implements Runnable {
         soundManager.playBackgroundMusic();
     }
 
+    public void startMultiplayerGame(boolean isHost) {
+        // Clear any existing multiplayer state
+        if (gameClient != null) {
+            gameClient.disconnect();
+        }
+        otherPlayers.clear();
+        
+        isMultiplayer = true;
+        gameClient = new GameClient(this);
+        gameClient.setHost(isHost);
+        
+        if (isHost) {
+            // Start server in a new thread
+            new Thread(() -> {
+                GameServer.getInstance().start();
+                System.out.println("Server started on port 5000");
+            }).start();
+            
+            // Give the server a moment to start
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        // Connect to server
+        gameClient.connect();
+    }
+
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
@@ -99,7 +138,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    private void update() {
+    public void update() {
         switch(gameState) {
             case STATE_MENU:
                 menuState.update();
@@ -116,6 +155,15 @@ public class GamePanel extends JPanel implements Runnable {
                     enemyManager.update();
                     projectileManager.update();
                     collisionChecker.checkCollisions();
+
+                    // Update other players in multiplayer mode
+                    if (isMultiplayer && gameClient != null && gameClient.isConnected()) {
+                        for (OtherPlayer otherPlayer : otherPlayers.values()) {
+                            otherPlayer.update();
+                        }
+                        gameClient.sendGameState();
+                    }
+
                     // Level progression
                     if (score >= 100 && level < 2) {
                         level = 2;
@@ -126,7 +174,7 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                 } else {
                     gameState = STATE_GAME_OVER;
-                    if(score> dbManager.getHighscore(currentUser)) {
+                    if(score > dbManager.getHighscore(currentUser)) {
                         dbManager.updateHighscore(currentUser, score);
                     }
                 }
@@ -135,9 +183,10 @@ public class GamePanel extends JPanel implements Runnable {
                 if (keyHandler.rPressed) {
                     restartGame();
                     keyHandler.rPressed = false;
-                }else if(keyHandler.escapePressed){
+                } else if (keyHandler.escapePressed) {
                     startGame();
                     gameState = STATE_MENU;
+                    keyHandler.escapePressed = false;
                 }
                 break;
         }
@@ -156,6 +205,14 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGame() {
+        // Clear multiplayer state if exists
+        if (gameClient != null) {
+            gameClient.disconnect();
+            gameClient = null;
+        }
+        isMultiplayer = false;
+        otherPlayers.clear();
+
         score = 0;
         level = 1;
         gameOver = false;
@@ -218,24 +275,24 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
             case STATE_PLAYING:
                 background.draw(g2);
-
                 player.draw(g2);
+                
+                // Draw other players in multiplayer mode
+                if (isMultiplayer) {
+                    for (OtherPlayer otherPlayer : otherPlayers.values()) {
+                        otherPlayer.draw(g2);
+                    }
+                }
+
                 enemyManager.draw(g2);
                 projectileManager.draw(g2);
-
-                // Draw UI
                 ui.draw(g2);
                 break;
             case STATE_GAME_OVER:
-                // Draw background
                 background.draw(g2);
-
-                // Draw game elements
                 player.draw(g2);
                 enemyManager.draw(g2);
                 projectileManager.draw(g2);
-
-                // Draw UI
                 ui.draw(g2);
                 break;
             case STATE_ACCOUNT:
@@ -247,6 +304,30 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         g2.dispose();
+    }
+
+    // Multiplayer methods
+    public void addOtherPlayer(String playerId) {
+        if (!otherPlayers.containsKey(playerId)) {
+            otherPlayers.put(playerId, new OtherPlayer(this, playerId));
+            System.out.println("Added player: " + playerId);
+        }
+    }
+
+    public void removeOtherPlayer(String playerId) {
+        otherPlayers.remove(playerId);
+        System.out.println("Removed player: " + playerId);
+    }
+
+    public void updateOtherPlayer(String playerId, int x, int y) {
+        if (!otherPlayers.containsKey(playerId)) {
+            addOtherPlayer(playerId);
+        }
+        OtherPlayer player = otherPlayers.get(playerId);
+        if (player != null) {
+            player.setPosition(x, y);
+            System.out.println("Updated player position: " + playerId + " at " + x + "," + y);
+        }
     }
 
     // Getters and setters
@@ -263,14 +344,13 @@ public class GamePanel extends JPanel implements Runnable {
     public void decreasePlayerLives() { playerLives--; }
     public int getLevel() { return level; }
     public boolean isGameOver() { return gameOver; }
-    public void setGameState(int gameState) {this.gameState = gameState;}
-    public void setCurrentUser(String username) {
-        this.currentUser = username;
-    }
+    public void setGameState(int gameState) { this.gameState = gameState; }
+    public void setCurrentUser(String username) { this.currentUser = username; }
     public void setSelectedShip(Ship ship) {
         this.selectedShip = ship;
-
         player.applyShipStats(ship);
     }
     public void setPlayerLives(int playerLives) { this.playerLives = playerLives; }
+    public boolean isMultiplayer() { return isMultiplayer; }
+    public GameClient getGameClient() { return gameClient; }
 }

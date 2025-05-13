@@ -14,6 +14,8 @@ public class KeyHandler implements KeyListener {
 
     char lastKeyChar;
     int lastKeyCode;
+    private long lastShootPressTime = 0;
+    private static final long SHOOT_PRESS_DELAY = 200; // 200ms between shoot presses
 
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -29,10 +31,20 @@ public class KeyHandler implements KeyListener {
         if (lastKeyCode == KeyEvent.VK_DOWN || lastKeyCode == KeyEvent.VK_S) downPressed = true;
         if (lastKeyCode == KeyEvent.VK_LEFT || lastKeyCode == KeyEvent.VK_A) leftPressed = true;
         if (lastKeyCode == KeyEvent.VK_RIGHT || lastKeyCode == KeyEvent.VK_D) rightPressed = true;
-        if (lastKeyCode == KeyEvent.VK_ENTER) enterPressed = true;
+        
+        // Handle shooting with rate limiting
+        if (lastKeyCode == KeyEvent.VK_ENTER) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastShootPressTime >= SHOOT_PRESS_DELAY) {
+                enterPressed = true;
+                shootPressed = true;
+                lastShootPressTime = currentTime;
+            }
+        }
+        
         if (lastKeyCode == KeyEvent.VK_ESCAPE) escapePressed = true;
 
-        // Shooting controls
+        // Shooting controls with space
         if (lastKeyCode == KeyEvent.VK_SPACE) {
             if (!spacePressed) {
                 shootPressed = true;
@@ -54,6 +66,10 @@ public class KeyHandler implements KeyListener {
         if (lastKeyCode == KeyEvent.VK_RIGHT || lastKeyCode == KeyEvent.VK_D) rightPressed = false;
         if (lastKeyCode == KeyEvent.VK_SPACE) {
             spacePressed = false;
+            shootPressed = false;
+        }
+        if (lastKeyCode == KeyEvent.VK_ENTER) {
+            enterPressed = false;
             shootPressed = false;
         }
         if (lastKeyCode == KeyEvent.VK_R) rPressed = false;

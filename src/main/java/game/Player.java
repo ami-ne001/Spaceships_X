@@ -24,6 +24,8 @@ public class Player {
     // Shooting
     private int shootCooldown = 0;
     private final int shootCooldownMax = 15;
+    private long lastShootTime = 0;
+    private static final long SHOOT_DELAY = 200; // 200ms between shots
 
     public Player(GamePanel gp, KeyHandler keyHandler) {
         this.gp = gp;
@@ -70,15 +72,12 @@ public class Player {
         hitbox.x = x;
         hitbox.y = y;
 
-        // Shooting
-        if (shootCooldown > 0) {
-            shootCooldown--;
-        }
-
-        if (keyHandler.shootPressed && shootCooldown == 0) {
+        // Shooting with rate limiting
+        long currentTime = System.currentTimeMillis();
+        if (keyHandler.shootPressed && currentTime - lastShootTime >= SHOOT_DELAY) {
             gp.getProjectileManager().addPlayerProjectile(x + width / 2, y);
             gp.getSoundManager().playSound(SoundManager.SHOOT_SOUND);
-            shootCooldown = shootCooldownMax;
+            lastShootTime = currentTime;
         }
     }
 

@@ -11,15 +11,16 @@ public class MenuState {
     private int currentChoice = 0;
     private String[] options = {"NEW GAME", "MULTIPLAYER", "QUIT"};
     private BufferedImage backgroundImage;
-
+    private boolean hostingGame = false;
+    private String multiplayerStatus = "";
 
     public MenuState(GamePanel gp) {
         this.gp = gp;
         try {
             titleFont = new Font("Arial", Font.BOLD, 40);
             menuFont = new Font("Arial", Font.PLAIN, 30);
-             backgroundImage = ImageIO.read(getClass().getResourceAsStream("/background/space.png"));
-            } catch (Exception e) {
+            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/background/space.png"));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -42,6 +43,23 @@ public class MenuState {
             selectOption();
             gp.getKeyHandler().enterPressed = false;
         }
+
+        // Handle escape from multiplayer menu
+        if (gp.getKeyHandler().escapePressed && hostingGame) {
+            hostingGame = false;
+            multiplayerStatus = "";
+            gp.getKeyHandler().escapePressed = false;
+        }
+
+        // Handle multiplayer input
+        if (hostingGame) {
+            char key = gp.getKeyHandler().lastKeyChar;
+            if (key == 'h' || key == 'H') {
+                startMultiplayerGame(true);
+            } else if (key == 'j' || key == 'J') {
+                startMultiplayerGame(false);
+            }
+        }
     }
 
     private void selectOption() {
@@ -49,12 +67,35 @@ public class MenuState {
             case 0: // NEW GAME
                 gp.setGameState(GamePanel.STATE_ACCOUNT);
                 break;
-            case 1: //MULTIPLAYER
+            case 1: // MULTIPLAYER
+                if (!hostingGame) {
+                    hostingGame = true;
+                    multiplayerStatus = "Press H to host or J to join";
+                }
                 break;
             case 2: // QUIT
                 System.exit(0);
                 break;
         }
+    }
+
+    private void startMultiplayerGame(boolean isHost) {
+        // Initialize multiplayer
+        gp.startMultiplayerGame(isHost);
+        
+        if (!isHost) {
+            multiplayerStatus = "Joining game...";
+        } else {
+            multiplayerStatus = "Hosting game... Waiting for players";
+        }
+
+        // Only proceed to account state if connection is successful
+        if (!isHost && !gp.getGameClient().isConnected()) {
+            multiplayerStatus = "Failed to connect to server!";
+            return;
+        }
+
+        gp.setGameState(GamePanel.STATE_ACCOUNT);
     }
 
     public void draw(Graphics2D g2) {
@@ -63,32 +104,35 @@ public class MenuState {
 
         // Draw title
         g2.setFont(titleFont);
-        g2.setColor(Color.YELLOW);
-        String title = "Breath of Relief";
-        int x = getXForCenteredText(title, g2);
-        g2.drawString(title, x, gp.getScreenHeight() / 4);
+        g2.setColor(Color.BLUE);
+        String text = "SPACE SHOOTER";
+        int x = getXForCenteredText(text, g2);
+        g2.drawString(text, x, 100);
 
         // Draw menu options
         g2.setFont(menuFont);
         for (int i = 0; i < options.length; i++) {
             if (i == currentChoice) {
                 g2.setColor(Color.WHITE);
-                g2.drawString("> " + options[i], getXForCenteredText("> " + options[i], g2),
-                        gp.getScreenHeight() / 2 + i * 40);
             } else {
                 g2.setColor(Color.GRAY);
-                g2.drawString(options[i], getXForCenteredText(options[i], g2),
-                        gp.getScreenHeight() / 2 + i * 40);
             }
+            text = options[i];
+            x = getXForCenteredText(text, g2);
+            g2.drawString(text, x, 200 + i * 50);
         }
-        g2.setFont(new Font("Arial", Font.PLAIN, 15));
-        g2.setColor(Color.WHITE);
-        g2.drawString("Use Up/Down arrows to navigate, Press Enter to select", 170,
-                gp.getScreenHeight() - 20);
+
+        // Draw multiplayer status if active
+        if (hostingGame) {
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial", Font.PLAIN, 20));
+            x = getXForCenteredText(multiplayerStatus, g2);
+            g2.drawString(multiplayerStatus, x, 400);
+        }
     }
 
     private int getXForCenteredText(String text, Graphics2D g2) {
-        int length = (int)g2.getFontMetrics().getStringBounds(text, g2).getWidth();
+        int length = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
         return gp.getScreenWidth() / 2 - length / 2;
     }
 }

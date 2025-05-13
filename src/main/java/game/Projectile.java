@@ -15,12 +15,24 @@ public class Projectile {
     private BufferedImage image;
     protected Rectangle hitbox;
     private boolean active = true;
+    private String shooterId;
 
     public Projectile(GamePanel gp, int x, int y, boolean isPlayerProjectile) {
         this.gp = gp;
         this.x = x - width / 2;
         this.y = y;
         this.isPlayerProjectile = isPlayerProjectile;
+        
+        // Handle shooter ID for both single-player and multiplayer modes
+        if (isPlayerProjectile) {
+            if (gp.isMultiplayer() && gp.getGameClient() != null && gp.getGameClient().isConnected()) {
+                this.shooterId = gp.getGameClient().getClientId();
+            } else {
+                this.shooterId = "single_player";
+            }
+        } else {
+            this.shooterId = "enemy";
+        }
 
         try {
             if (isPlayerProjectile) {
@@ -65,5 +77,32 @@ public class Projectile {
 
     public boolean isPlayerProjectile() {
         return isPlayerProjectile;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public String getShooterId() {
+        return shooterId;
+    }
+
+    public void setShooterId(String shooterId) {
+        this.shooterId = shooterId;
+    }
+
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.hitbox.x = x;
+        this.hitbox.y = y;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

@@ -15,6 +15,7 @@ public class Enemy {
     private int width = 48;
     private int height = 48;
     private int health;
+    private int type;
     private int points;
 
     // Enemy image
@@ -27,13 +28,14 @@ public class Enemy {
     private Random random = new Random();
 
     // Shooting
-    private int shootCooldown = 0;
-    private int shootCooldownMax = 120;  // Augmenter le cooldown
+    private int shootTimer = 0;
+    private int shootInterval = 120;
 
     public Enemy(GamePanel gp, int x, int y, int type) {
         this.gp = gp;
         this.x = x;
         this.y = y;
+        this.type = type;
 
         // Set enemy type (1 = easy, 2 = medium, 3 = hard)
         switch (type) {
@@ -76,32 +78,30 @@ public class Enemy {
     }
 
     public void update() {
+        // Basic movement
+        y += speed;
+
         // Movement patterns
         switch (movementPattern) {
             case 0: // Straight down
-                y += speed;
                 break;
             case 1: // Zigzag
-                y += speed;
-                x += (int)(Math.sin(movementCounter * 0.1) * 2);
+                x += Math.sin(y * 0.05) * 2;
                 break;
-            case 2: // Circular
-                y += speed;
-                x += (int)(Math.cos(movementCounter * 0.1) * 3);
+            case 2: // Wave
+                x += Math.cos(y * 0.03) * 3;
                 break;
         }
-        movementCounter++;
 
         // Update hitbox
         hitbox.x = x;
         hitbox.y = y;
 
         // Shooting
-        if (shootCooldown > 0) {
-            shootCooldown--;
-        } else if (random.nextInt(200) < 1) {  // Seulement 0.5% de chance de tirer
+        shootTimer++;
+        if (shootTimer >= shootInterval) {
             gp.getProjectileManager().addEnemyProjectile(x + width / 2, y + height);
-            shootCooldown = shootCooldownMax;
+            shootTimer = 0;
         }
     }
 
@@ -133,4 +133,12 @@ public class Enemy {
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
+
+    public int getType() {
+        return type;
+    }
+
+    public int getHealth() {
+        return health;
+    }
 }

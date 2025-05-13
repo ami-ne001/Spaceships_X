@@ -1,93 +1,123 @@
 package game;
 
+import game.network.GameState;
+
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class EnemyManager {
     private GamePanel gp;
-    private ArrayList<Enemy> enemies = new ArrayList<>();
-    private Random random = new Random();
-    private int spawnCooldown = 0;
-    private int spawnCooldownMax = 60;
+    private List<Enemy> enemies;
+    private int spawnTimer;
+    private int spawnInterval = 60;
     private int level = 1;
+    private int maxEnemies = 5;
 
     public EnemyManager(GamePanel gp) {
         this.gp = gp;
-    }
-
-    public void setLevel(int newLevel) {
-        this.level = newLevel;
-        this.spawnCooldownMax = Math.max(20, 60 - level * 5);
+        enemies = Collections.synchronizedList(new ArrayList<>());
+        spawnTimer = 0;
     }
 
     public void update() {
-        // Spawn new enemies
-        if (spawnCooldown > 0) {
-            spawnCooldown--;
-        } else if (random.nextInt(100) < 15) {  // 15% de chance de spawn
-            spawnEnemy();
-            spawnCooldown = spawnCooldownMax;
-        }
+        synchronized (enemies) {
+            // Spawn enemies in single player or if we're the host in multiplayer
+            if (!gp.isMultiplayer() || (gp.getGameClient() != null && gp.getGameClient().isHost())) {
+                spawnTimer++;
+                if (spawnTimer >= spawnInterval && enemies.size() < maxEnemies) {
+                    spawnEnemy();
+                    spawnTimer = 0;
+                }
+            }
 
-        // Update all enemies
-        for (int i = 0; i < enemies.size(); i++) {
-            Enemy enemy = enemies.get(i);
-            enemy.update();
-
-            // Remove if off-screen
-            if (enemy.isOffScreen()) {
-                enemies.remove(i);
-                i--;
+            // Update enemies
+            Iterator<Enemy> it = enemies.iterator();
+            while (it.hasNext()) {
+                Enemy enemy = it.next();
+                enemy.update();
+                
+                // Remove enemies that are off screen
+                if (enemy.isOffScreen()) {
+                    it.remove();
+                }
             }
         }
     }
 
     private void spawnEnemy() {
-        int x = random.nextInt(gp.getScreenWidth() - 48);
-        int y = -48;
-
-        // Determine enemy type based on level
-        int enemyType;
-        int rand = random.nextInt(100);
-
-        if (level == 1) {
-            enemyType = 1;  // Seulement type 1 pour niveau 1
-        } else if (level == 2) {
-            enemyType = random.nextBoolean() ? 1 : 2;  // Types 1 et 2 pour niveau 2
-        } else {
-            // Tous les types pour niveau 3
-            rand = random.nextInt(3);
-            enemyType = rand + 1;
+        int x = (int) (Math.random() * (gp.getScreenWidth() - 48));
+        int type = (int) (Math.random() * level) + 1;
+        synchronized (enemies) {
+            enemies.add(new Enemy(gp, x, -48, type));
         }
-
-        enemies.add(new Enemy(gp, x, y, enemyType));
     }
 
     public void draw(Graphics2D g2) {
-        for (Enemy enemy : enemies) {
-            enemy.draw(g2);
+        synchronized (enemies) {
+            for (Enemy enemy : new ArrayList<>(enemies)) {
+                enemy.draw(g2);
+            }
+        }
+    }
+
+    public List<Enemy> getEnemies() {
+        synchronized (enemies) {
+            return new ArrayList<>(enemies);
+        }
+    }
+
+    public void removeEnemy(Enemy enemy) {
+        synchronized (enemies) {
+            enemies.remove(enemy);
         }
     }
 
     public void clearEnemies() {
-        enemies.clear();
+        synchronized (enemies) {
+            enemies.clear();
+        }
     }
 
-    public ArrayList<Enemy> getEnemies() {
-        return enemies;
+    public void setLevel(int level) {
+        this.level = level;
+        // Adjust difficulty based on level
+        switch (level) {
+            case 1:
+                spawnInterval = 60;
+                maxEnemies = 5;
+                break;
+            case 2:
+                spawnInterval = 45;
+                maxEnemies = 7;
+                break;
+            case 3:
+                spawnInterval = 30;
+                maxEnemies = 10;
+                break;
+        }
     }
 
-    public void removeEnemy(Enemy enemy) {
-        enemies.remove(enemy);
+    public void increaseDifficulty(int level) {
+        this.level = level;
+        spawnInterval = Math.max(15, 60 - (level * 10));
+        maxEnemies = Math.min(15, 5 + level);
     }
 
-    public boolean allEnemiesDefeated() {
-        return enemies.isEmpty();
-    }
-
-    public void increaseDifficulty(int newLevel) {
-        level = newLevel;
-        spawnCooldownMax = Math.max(20, 60 - level * 5);
+    // Multiplayer synchronization
+    public void syncEnemies(List<GameState.EnemyState> enemyStates) {
+        if (enemyStates == null) return;
+        
+        synchronized (enemies) {
+            // Clear existing enemies and recreate them from the synchronized state
+            enemies.clear();
+            
+            for (GameState.EnemyState state : enemyStates) {
+                Enemy enemy = new Enemy(gp, state.getX(), state.getY(), state.getType());
+                enemies.add(enemy);
+            }
+        }
     }
 }
