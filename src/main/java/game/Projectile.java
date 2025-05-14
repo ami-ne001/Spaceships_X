@@ -63,38 +63,16 @@ public class Projectile {
         g2.drawImage(image, x, y, width, height, null);
     }
 
-    public Rectangle getHitbox() {
-        return hitbox;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public boolean isPlayerProjectile() {
-        return isPlayerProjectile;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public String getShooterId() {
-        return shooterId;
-    }
-
-    public void setShooterId(String shooterId) {
-        this.shooterId = shooterId;
-    }
-
+    public Rectangle getHitbox() { return hitbox; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+    public boolean isPlayerProjectile() { return isPlayerProjectile; }
+    public int getX() { return x; }
+    public int getY() { return y; }
+    public int getHeight() { return height; }
+    public int getWidth() { return width; }
+    public String getShooterId() { return shooterId; }
+    public void setShooterId(String shooterId) { this.shooterId = shooterId; }
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
@@ -102,7 +80,4 @@ public class Projectile {
         this.hitbox.y = y;
     }
 
-    public int getHeight() {
-        return height;
-    }
 }

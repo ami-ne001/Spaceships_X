@@ -21,7 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     public static final int STATE_SHIP_SELECTION = 2;
     public static final int STATE_PLAYING = 3;
     public static final int STATE_GAME_OVER = 4;
-    public static final int STATE_IP_INPUT = 5;  // New state for IP input
+    public static final int STATE_IP_INPUT = 5;
 
     // Game state
     private int FPS = 60;
@@ -359,10 +359,13 @@ public class GamePanel extends JPanel implements Runnable {
     public boolean isGameOver() { return gameOver; }
     public void setGameState(int gameState) { this.gameState = gameState; }
     public void setCurrentUser(String username) { this.currentUser = username; }
+    public String getCurrentUser() { return currentUser; }
     public void setSelectedShip(Ship ship) {
         this.selectedShip = ship;
         player.applyShipStats(ship);
     }
+    public Ship getSelectedShip() { return selectedShip; }
+    public Map<String, OtherPlayer> getOtherPlayers() { return otherPlayers; }
     public void setPlayerLives(int playerLives) { this.playerLives = playerLives; }
     public boolean isMultiplayer() { return isMultiplayer; }
     public GameClient getGameClient() { return gameClient; }

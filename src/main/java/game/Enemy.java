@@ -4,7 +4,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Random;
 
 public class Enemy {
     private GamePanel gp;
@@ -25,7 +24,6 @@ public class Enemy {
     // Movement pattern
     private int movementPattern;
     private int movementCounter = 0;
-    private Random random = new Random();
 
     // Shooting
     private int shootTimer = 0;
@@ -62,7 +60,7 @@ public class Enemy {
                 }
                 break;
             case 3:
-                speed = 3;
+                speed = 2;
                 health = 3;
                 points = 30;
                 movementPattern = 2;
@@ -86,12 +84,13 @@ public class Enemy {
             case 0: // Straight down
                 break;
             case 1: // Zigzag
-                x += Math.sin(y * 0.05) * 2;
+                x += (int)(Math.sin(movementCounter * 0.1) * 2);
                 break;
-            case 2: // Wave
-                x += Math.cos(y * 0.03) * 3;
+            case 2: // Zigzag
+                x += (int)(Math.cos(movementCounter * 0.1) * 3);
                 break;
         }
+        movementCounter++;
 
         // Update hitbox
         hitbox.x = x;
@@ -115,30 +114,22 @@ public class Enemy {
             gp.getSoundManager().playSound(SoundManager.EXPLOSION_SOUND);
             gp.addScore(points);
             gp.getEnemyManager().removeEnemy(this);
-
-            // Create explosion animation
-            gp.getProjectileManager().addExplosion(x, y);
+            gp.getProjectileManager().addExplosion(x + width / 2, y + height / 2);
+            return;
         }
+        gp.getSoundManager().playSound(SoundManager.HIT_SOUND);
     }
 
     public Rectangle getHitbox() {
         return hitbox;
     }
-
     public boolean isOffScreen() {
         return y > gp.getScreenHeight();
     }
-
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
-
-    public int getType() {
-        return type;
-    }
-
-    public int getHealth() {
-        return health;
-    }
+    public int getType() { return type; }
+    public int getHealth() { return health; }
 }

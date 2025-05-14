@@ -35,11 +35,5 @@ public class ShipManager {
         ));
     }
 
-    public List<Ship> getAvailableShips() {
-        return availableShips;
-    }
-
-    public Ship getDefaultShip() {
-        return availableShips.getFirst(); // Return Falcon as default
-    }
+    public List<Ship> getAvailableShips() { return availableShips; }
 }

@@ -112,6 +112,5 @@ public class Account{
 
     public String getUsername(){return this.username;}
     public int getScore(){return this.score;}
-
     public void setscore(int score){this.score = score;}
 }

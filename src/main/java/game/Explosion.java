@@ -45,7 +45,5 @@ public class Explosion {
         }
     }
 
-    public boolean isFinished() {
-        return finished;
-    }
+    public boolean isFinished() { return finished; }
 }

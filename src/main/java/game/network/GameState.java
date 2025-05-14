@@ -9,10 +9,12 @@ public class GameState implements Serializable {
     
     // Player state
     private String playerId;
+    private String username; // Added field for username
     private int x;
     private int y;
     private int lives;
     private int score;
+    private String shipImagePath; // Added field for ship image path
     
     // Game state
     private List<EnemyState> enemies;
@@ -38,6 +40,14 @@ public class GameState implements Serializable {
     public int getLives() { return lives; }
     public void setScore(int score) { this.score = score; }
     public int getScore() { return score; }
+    
+    // Username getter and setter
+    public void setUsername(String username) { this.username = username; }
+    public String getUsername() { return username; }
+    
+    // Ship image path getter and setter
+    public void setShipImagePath(String path) { this.shipImagePath = path; }
+    public String getShipImagePath() { return shipImagePath; }
     
     // Game state management
     public void setEnemies(List<EnemyState> enemies) {

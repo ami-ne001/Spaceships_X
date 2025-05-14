@@ -1,9 +1,6 @@
 package game.network;
 
-import game.Enemy;
-import game.GamePanel;
-import game.Player;
-import game.Projectile;
+import game.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -195,6 +192,30 @@ public class GameClient {
             }
             stateBuffer.offer(state);
             
+            // Extract player info
+            String playerId = state.getPlayerId();
+            String username = state.getUsername();
+            String shipPath = state.getShipImagePath();
+            
+            // Add other player if they don't exist yet
+            if (!gamePanel.getOtherPlayers().containsKey(playerId)) {
+                gamePanel.addOtherPlayer(playerId);
+            }
+            
+            // Update the player info
+            OtherPlayer otherPlayer = gamePanel.getOtherPlayers().get(playerId);
+            if (otherPlayer != null) {
+                // Update username if available
+                if (username != null) {
+                    otherPlayer.setUsername(username);
+                }
+                
+                // Update ship image if available
+                if (shipPath != null) {
+                    otherPlayer.setShipImagePath(shipPath);
+                }
+            }
+            
             // Handle non-interpolated updates
             if (!isHost && state.getEnemies() != null) {
                 gamePanel.getEnemyManager().clearEnemies();
@@ -241,6 +262,14 @@ public class GameClient {
             state.setLives(player.getLives());
             state.setScore(gamePanel.getScore());
             state.setLevel(gamePanel.getLevel());
+            
+            // Set username (use current user from game panel)
+            state.setUsername(gamePanel.getCurrentUser());
+            
+            // Update ship image path
+            if (player.getImage() != null && gamePanel.getSelectedShip() != null) {
+                state.setShipImagePath(gamePanel.getSelectedShip().getImagePath());
+            }
             
             // Only host sends enemy states
             if (isHost) {
@@ -315,23 +344,9 @@ public class GameClient {
         }
     }
     
-    public boolean isConnected() {
-        return connected;
-    }
-    
-    public String getClientId() {
-        return clientId;
-    }
-
-    public boolean isHost() {
-        return isHost;
-    }
-
-    public void setHost(boolean isHost) {
-        this.isHost = isHost;
-    }
-
-    public static void setServerIP(String ip) {
-        SERVER_IP = ip;
-    }
+    public boolean isConnected() { return connected; }
+    public String getClientId() { return clientId; }
+    public boolean isHost() { return isHost; }
+    public void setHost(boolean isHost) { this.isHost = isHost; }
+    public static void setServerIP(String ip) { SERVER_IP = ip; }
 } 

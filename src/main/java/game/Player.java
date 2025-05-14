@@ -92,8 +92,12 @@ public class Player {
     public void takeDamage() {
         lives--;
         if (lives <= 0) {
+            gp.getSoundManager().playSound(SoundManager.EXPLOSION_SOUND);
+            gp.getProjectileManager().addExplosion(x + width / 2, y + height / 2);
             gp.gameOver();
+            return;
         }
+        gp.getSoundManager().playSound(SoundManager.HIT_SOUND);
     }
 
     public int getLives() {
@@ -105,6 +109,7 @@ public class Player {
     public int getWidth() { return width; }
     public int getHeight() { return height; }
     public int getMaxHealth() { return maxHealth; }
+    public BufferedImage getImage() { return image; }
 
     public void setX(int x){this.x = x;}
     public void setY(int y){this.y = y;}

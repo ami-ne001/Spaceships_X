@@ -34,6 +34,7 @@ public class Ship{
     public int getSpeed() { return speed; }
     public int getHealth() { return health; }
     public BufferedImage getImage() { return image; }
+    public String getImagePath() { return imagePath; }
 
     @Override
     public String toString() {

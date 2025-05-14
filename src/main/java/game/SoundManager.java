@@ -8,6 +8,7 @@ public class SoundManager {
     public static final int BACKGROUND_MUSIC = 0;
     public static final int SHOOT_SOUND = 1;
     public static final int EXPLOSION_SOUND = 2;
+    public static final int HIT_SOUND = 3;
 
     private Clip[] sounds;
     private Clip backgroundMusic;
@@ -15,7 +16,7 @@ public class SoundManager {
     private boolean soundOn = true;
 
     public SoundManager() {
-        sounds = new Clip[3];
+        sounds = new Clip[4];
         loadSounds();
     }
 
@@ -38,6 +39,12 @@ public class SoundManager {
             audioIn = AudioSystem.getAudioInputStream(url);
             sounds[EXPLOSION_SOUND] = AudioSystem.getClip();
             sounds[EXPLOSION_SOUND].open(audioIn);
+
+            // Load hit sound
+            url = getClass().getResource("/sound/hit.wav");
+            audioIn = AudioSystem.getAudioInputStream(url);
+            sounds[HIT_SOUND] = AudioSystem.getClip();
+            sounds[HIT_SOUND].open(audioIn);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
@@ -74,7 +81,5 @@ public class SoundManager {
         }
     }
 
-    public void toggleSound() {
-        soundOn = !soundOn;
-    }
+    public void toggleSound() { soundOn = !soundOn; }
 }
