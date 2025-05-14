@@ -99,10 +99,10 @@ public class MenuState {
 
         // Draw title
         g2.setFont(titleFont);
-        g2.setColor(Color.BLUE);
-        String text = "SPACE SHOOTER";
+        g2.setColor(Color.YELLOW);
+        String text = "SPACESHIPS_X";
         int x = getXForCenteredText(text, g2);
-        g2.drawString(text, x, 100);
+        g2.drawString(text, x, 175);
 
         // Draw menu options
         g2.setFont(menuFont);
@@ -114,7 +114,7 @@ public class MenuState {
             }
             text = options[i];
             x = getXForCenteredText(text, g2);
-            g2.drawString(text, x, 200 + i * 50);
+            g2.drawString(text, x, 300 + i * 50);
         }
 
         // Draw multiplayer status if active
@@ -122,7 +122,7 @@ public class MenuState {
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.PLAIN, 20));
             x = getXForCenteredText(multiplayerStatus, g2);
-            g2.drawString(multiplayerStatus, x, 400);
+            g2.drawString(multiplayerStatus, x, 475);
         }
     }
 

@@ -1,5 +1,6 @@
 package game;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -11,12 +12,20 @@ public class ShipSelectionState {
     private int currentSelection = 0;
 
     private Font titleFont = new Font("Arial", Font.BOLD, 40);
+    private Font ShipTitleFont = new Font("Arial", Font.BOLD, 30);
     private Font statFont = new Font("Arial", Font.PLAIN, 20);
+    private BufferedImage backgroundImage;
+
 
     public ShipSelectionState(GamePanel gp) {
         this.gp = gp;
         this.shipManager = new ShipManager();
         this.ships = shipManager.getAvailableShips();
+        try {
+            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/background/space.png"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void update() {
@@ -54,26 +63,26 @@ public class ShipSelectionState {
 
     public void draw(Graphics2D g2) {
         // Background
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
+        g2.drawImage(backgroundImage, 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
 
         // Title
         g2.setFont(titleFont);
-        g2.setColor(Color.BLUE);
+        g2.setColor(Color.YELLOW);
         String title = "SELECT YOUR SHIP";
         int titleX = getXForCenteredText(title, g2);
-        g2.drawString(title, titleX, 80);
+        g2.drawString(title, titleX, 150);
 
         Ship currentShip = ships.get(currentSelection);
 
         // Ship name
-        g2.drawString(currentShip.getName(), getXForCenteredText(currentShip.getName(), g2), 180);
+        g2.setFont(titleFont);
+        g2.drawString(currentShip.getName(), getXForCenteredText(currentShip.getName(), g2), 250);
 
         // Ship image
         BufferedImage img = currentShip.getImage();
         if (img != null) {
             int shipX = gp.getScreenWidth() / 2 - gp.getTileSize();
-            g2.drawImage(img, shipX, 200, gp.getTileSize()*2, gp.getTileSize()*2 , null);
+            g2.drawImage(img, shipX, 275, gp.getTileSize()*2, gp.getTileSize()*2 , null);
         }
 
         // Stats
@@ -84,9 +93,9 @@ public class ShipSelectionState {
         // Instructions
         g2.setColor(Color.LIGHT_GRAY);
         g2.drawString("Use LEFT/RIGHT to select, ENTER to confirm",
-                getXForCenteredText("Use LEFT/RIGHT to select, ENTER to confirm", g2), 550);
+                getXForCenteredText("Use LEFT/RIGHT to select, ENTER to confirm", g2), 570);
         g2.drawString("Press ESC to go back",
-                getXForCenteredText("Press ESC to go back", g2), 580);
+                getXForCenteredText("Press ESC to go back", g2), 610);
     }
 
     private void drawStatBar(Graphics2D g2, String label, int value, int max, int x, int y) {
