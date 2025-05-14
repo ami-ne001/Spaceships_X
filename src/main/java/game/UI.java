@@ -42,7 +42,7 @@ public class UI {
         }
     }
 
-    private void drawGameOverScreen(Graphics2D g2) {
+    public void drawGameOverScreen(Graphics2D g2) {
         g2.setColor(new Color(0, 0, 0, 150));
         g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
 

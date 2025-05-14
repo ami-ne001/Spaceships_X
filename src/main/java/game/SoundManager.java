@@ -71,6 +71,11 @@ public class SoundManager {
             sounds[soundType].start();
         }
     }
+    
+    public void playGameOverSound() {
+        stopBackgroundMusic();
+        playSound(EXPLOSION_SOUND);
+    }
 
     public void toggleMusic() {
         musicOn = !musicOn;

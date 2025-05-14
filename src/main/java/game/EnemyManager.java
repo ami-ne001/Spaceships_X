@@ -100,12 +100,6 @@ public class EnemyManager {
         }
     }
 
-    public void increaseDifficulty(int level) {
-        this.level = level;
-        spawnInterval = Math.max(15, 60 - (level * 10));
-        maxEnemies = Math.min(15, 5 + level);
-    }
-
     // Multiplayer synchronization
     public void syncEnemies(List<GameState.EnemyState> enemyStates) {
         if (enemyStates == null) return;

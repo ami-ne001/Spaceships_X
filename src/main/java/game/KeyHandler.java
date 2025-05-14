@@ -10,12 +10,13 @@ public class KeyHandler implements KeyListener {
     public boolean enterPressed;
     public boolean rPressed;
     public boolean escapePressed;
+    public boolean shiftPressed;
     public boolean keyPressed = false;
 
     char lastKeyChar;
     int lastKeyCode;
     private long lastShootPressTime = 0;
-    private static final long SHOOT_PRESS_DELAY = 200; // 200ms between shoot presses
+    private static final long SHOOT_PRESS_DELAY = 200;
 
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -52,6 +53,11 @@ public class KeyHandler implements KeyListener {
             spacePressed = true;
         }
 
+        // Toggle chat with Shift
+        if (lastKeyCode == KeyEvent.VK_SHIFT) {
+            shiftPressed = true;
+        }
+        
         // Restart game when game over
         if (lastKeyCode == KeyEvent.VK_R) rPressed = true;
     }
@@ -74,5 +80,6 @@ public class KeyHandler implements KeyListener {
         }
         if (lastKeyCode == KeyEvent.VK_R) rPressed = false;
         if (lastKeyCode == KeyEvent.VK_ESCAPE) escapePressed = false;
+        if (lastKeyCode == KeyEvent.VK_SHIFT) shiftPressed = false;
     }
 }

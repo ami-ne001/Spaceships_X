@@ -1,6 +1,8 @@
 package game;
 
 import game.DAO.DatabaseManager;
+import game.network.ChatClient;
+import game.network.ChatServer;
 import game.network.GameClient;
 import game.network.GameServer;
 
@@ -38,13 +40,12 @@ public class GamePanel extends JPanel implements Runnable {
     private int playerLives;
     private int level = 1;
     private boolean gameOver = false;
-    private int enemiesDefeated = 0;
     private int gameState = STATE_MENU;
     private MenuState menuState;
     private DatabaseManager dbManager;
     private Account account;
     private ShipSelectionState shipSelectionState;
-    private IPInputState ipInputState;  // Add IPInputState
+    private IPInputState ipInputState;
     private String currentUser;
     private Ship selectedShip;
 
@@ -52,6 +53,10 @@ public class GamePanel extends JPanel implements Runnable {
     private GameClient gameClient;
     private boolean isMultiplayer = false;
     private Map<String, OtherPlayer> otherPlayers = new HashMap<>();
+    
+    // Chat components
+    private ChatUI chatUI;
+    private ChatClient chatClient;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -62,7 +67,7 @@ public class GamePanel extends JPanel implements Runnable {
         dbManager = new DatabaseManager();
         account = new Account(this, dbManager);
         shipSelectionState = new ShipSelectionState(this);
-        ipInputState = new IPInputState(this);  // Initialize IPInputState
+        ipInputState = new IPInputState(this);
 
         // Initialize game components
         initGame();
@@ -81,6 +86,7 @@ public class GamePanel extends JPanel implements Runnable {
         soundManager = new SoundManager();
         ui = new UI(this);
         menuState = new MenuState(this);
+        chatUI = new ChatUI(this);  // Initialize Chat UI
 
         // Play background music
         soundManager.playBackgroundMusic();
@@ -91,33 +97,51 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameClient != null) {
             gameClient.disconnect();
         }
+        if (chatClient != null) {
+            chatClient.disconnect();
+        }
         otherPlayers.clear();
         
         isMultiplayer = true;
+        
+        // Set up game client
         gameClient = new GameClient(this);
         gameClient.setHost(isHost);
         
         if (isHost) {
-            // Start server in a new thread
+            // Start game server in a new thread
             new Thread(() -> {
                 GameServer.getInstance().start();
-                System.out.println("Server started on port 5000");
+                System.out.println("Game Server started on port 5000");
             }).start();
             
-            // Give the server a moment to start
+            // Start chat server in a new thread
+            new Thread(() -> {
+                ChatServer.getInstance().start();
+                System.out.println("Chat Server started on port 5001");
+            }).start();
+            
+            // Give the servers a moment to start
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             GameClient.setServerIP("localhost"); // Host uses localhost
+            ChatClient.setServerIP("localhost");
         } else {
             // Client uses provided server IP
             GameClient.setServerIP(serverIP);
+            ChatClient.setServerIP(serverIP);
         }
         
-        // Connect to server
+        // Connect to game server
         gameClient.connect();
+        
+        // Set up and connect chat client
+        chatClient = new ChatClient(gameClient.getClientId(), currentUser, chatUI);
+        chatUI.setChatClient(chatClient);
+        chatClient.connect();
     }
 
     public void startGameThread() {
@@ -161,7 +185,14 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
             case STATE_PLAYING:
                 if (!gameOver) {
-                    player.update();
+                    // Update chat UI
+                    chatUI.update();
+                    
+                    // Only process game controls if chat isn't visible
+                    if (!chatUI.isVisible()) {
+                        player.update();
+                    }
+                    
                     enemyManager.update();
                     projectileManager.update();
                     collisionChecker.checkCollisions();
@@ -202,16 +233,9 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    private void levelUp() {
-        level++;
-        score += 100 * level;
-        enemyManager.increaseDifficulty(level);
-    }
-
     public void gameOver() {
         gameOver = true;
-        soundManager.stopBackgroundMusic();
-        soundManager.playSound(SoundManager.EXPLOSION_SOUND);
+        soundManager.playGameOverSound();
     }
 
     public void startGame() {
@@ -227,7 +251,6 @@ public class GamePanel extends JPanel implements Runnable {
         level = 1;
         gameOver = false;
         gameState = STATE_PLAYING;
-        enemiesDefeated = 0;
 
         // Clear all game objects
         if (enemyManager != null) {
@@ -253,7 +276,6 @@ public class GamePanel extends JPanel implements Runnable {
         enemyManager.setLevel(level);
         gameOver = false;
         gameState = STATE_PLAYING;
-        enemiesDefeated = 0;
         playerLives = selectedShip.getHealth();
         player.setX(getScreenWidth() / 2 - getTileSize() / 2);
         player.setY(getScreenHeight() - getTileSize() - 20);
@@ -279,31 +301,9 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        switch(gameState) {
+        switch (gameState) {
             case STATE_MENU:
                 menuState.draw(g2);
-                break;
-            case STATE_PLAYING:
-                background.draw(g2);
-                player.draw(g2);
-                
-                // Draw other players in multiplayer mode
-                if (isMultiplayer) {
-                    for (OtherPlayer otherPlayer : otherPlayers.values()) {
-                        otherPlayer.draw(g2);
-                    }
-                }
-
-                enemyManager.draw(g2);
-                projectileManager.draw(g2);
-                ui.draw(g2);
-                break;
-            case STATE_GAME_OVER:
-                background.draw(g2);
-                player.draw(g2);
-                enemyManager.draw(g2);
-                projectileManager.draw(g2);
-                ui.draw(g2);
                 break;
             case STATE_ACCOUNT:
                 account.draw(g2);
@@ -313,6 +313,29 @@ public class GamePanel extends JPanel implements Runnable {
                 break;
             case STATE_IP_INPUT:
                 ipInputState.draw(g2);
+                break;
+            case STATE_PLAYING:
+                // Draw the game elements
+                background.draw(g2);
+                enemyManager.draw(g2);
+                
+                // Draw other players in multiplayer mode
+                if (isMultiplayer) {
+                    for (OtherPlayer otherPlayer : otherPlayers.values()) {
+                        otherPlayer.draw(g2);
+                    }
+                }
+                
+                player.draw(g2);
+                projectileManager.draw(g2);
+                ui.draw(g2);
+                
+                // Draw chat UI
+                chatUI.draw(g2);
+                break;
+            case STATE_GAME_OVER:
+                background.draw(g2);
+                ui.drawGameOverScreen(g2);
                 break;
         }
 
@@ -358,7 +381,13 @@ public class GamePanel extends JPanel implements Runnable {
     public int getLevel() { return level; }
     public boolean isGameOver() { return gameOver; }
     public void setGameState(int gameState) { this.gameState = gameState; }
-    public void setCurrentUser(String username) { this.currentUser = username; }
+    public void setCurrentUser(String username) { 
+        this.currentUser = username; 
+        // Update chat client username if it exists
+        if (chatClient != null) {
+            chatClient.setUsername(username);
+        }
+    }
     public String getCurrentUser() { return currentUser; }
     public void setSelectedShip(Ship ship) {
         this.selectedShip = ship;
@@ -369,4 +398,10 @@ public class GamePanel extends JPanel implements Runnable {
     public void setPlayerLives(int playerLives) { this.playerLives = playerLives; }
     public boolean isMultiplayer() { return isMultiplayer; }
     public GameClient getGameClient() { return gameClient; }
+    public ChatUI getChatUI() {
+        return chatUI;
+    }
+    public ChatClient getChatClient() {
+        return chatClient;
+    }
 }
