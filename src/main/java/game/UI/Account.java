@@ -1,6 +1,7 @@
-package game;
+package game.UI;
 
 import game.DAO.DatabaseManager;
+import game.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -1,6 +1,10 @@
 package game.network;
 
-import game.*;
+import game.GamePanel;
+import game.entities.Enemy;
+import game.entities.OtherPlayer;
+import game.entities.Player;
+import game.entities.Projectile;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

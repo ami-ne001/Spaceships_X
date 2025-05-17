@@ -1,4 +1,9 @@
-package game;
+package game.entities;
+
+import game.GamePanel;
+import game.UI.KeyHandler;
+import game.UI.Ship;
+import game.managers.SoundManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

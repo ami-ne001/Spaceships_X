@@ -1,6 +1,6 @@
 package game.network;
 
-import game.ChatUI;
+import game.UI.ChatUI;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

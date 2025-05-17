@@ -1,5 +1,8 @@
-package game;
+package game.managers;
 
+import game.GamePanel;
+import game.entities.Explosion;
+import game.entities.Projectile;
 import game.network.GameState;
 
 import java.awt.*;

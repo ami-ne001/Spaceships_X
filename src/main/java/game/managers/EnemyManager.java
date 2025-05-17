@@ -1,5 +1,7 @@
-package game;
+package game.managers;
 
+import game.GamePanel;
+import game.entities.Enemy;
 import game.network.GameState;
 
 import java.awt.*;
@@ -87,15 +89,15 @@ public class EnemyManager {
         switch (level) {
             case 1:
                 spawnInterval = 60;
-                maxEnemies = 5;
+                maxEnemies = 9;
                 break;
             case 2:
                 spawnInterval = 45;
-                maxEnemies = 7;
+                maxEnemies = 12;
                 break;
             case 3:
                 spawnInterval = 30;
-                maxEnemies = 10;
+                maxEnemies = 15;
                 break;
         }
     }

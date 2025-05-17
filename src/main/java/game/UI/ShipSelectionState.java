@@ -1,4 +1,7 @@
-package game;
+package game.UI;
+
+import game.GamePanel;
+import game.managers.ShipManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -1,4 +1,6 @@
-package game;
+package game.managers;
+
+import game.UI.Ship;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package game;
+package game.managers;
 
 import javax.sound.sampled.*;
 import java.io.IOException;

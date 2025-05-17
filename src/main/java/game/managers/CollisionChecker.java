@@ -1,4 +1,9 @@
-package game;
+package game.managers;
+
+import game.GamePanel;
+import game.entities.Enemy;
+import game.entities.Player;
+import game.entities.Projectile;
 
 import java.util.List;
 

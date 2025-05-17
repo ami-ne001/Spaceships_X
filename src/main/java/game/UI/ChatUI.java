@@ -1,5 +1,6 @@
-package game;
+package game.UI;
 
+import game.GamePanel;
 import game.network.ChatClient;
 import game.network.ChatMessage;
 

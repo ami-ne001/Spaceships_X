@@ -1,6 +1,13 @@
 package game;
 
 import game.DAO.DatabaseManager;
+import game.UI.*;
+import game.entities.OtherPlayer;
+import game.entities.Player;
+import game.managers.CollisionChecker;
+import game.managers.EnemyManager;
+import game.managers.ProjectileManager;
+import game.managers.SoundManager;
 import game.network.ChatClient;
 import game.network.ChatServer;
 import game.network.GameClient;
