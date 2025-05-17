@@ -1,4 +1,9 @@
-package game;
+package game.entities;
+
+import game.GamePanel;
+import game.UI.KeyHandler;
+import game.UI.Ship;
+import game.managers.SoundManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,10 +16,11 @@ public class Player {
 
     // Player position and stats
     private int x, y;
-    private int speed = 4;
-    private int width = 48;
-    private int height = 48;
-    private int lives = 3;
+    private int speed;
+    private int maxHealth;
+    private int width ;
+    private int height;
+    private int lives;
 
     // Player image
     private BufferedImage image;
@@ -23,14 +29,19 @@ public class Player {
     // Shooting
     private int shootCooldown = 0;
     private final int shootCooldownMax = 15;
+    private long lastShootTime = 0;
+    private static final long SHOOT_DELAY = 200; // 200ms between shots
 
     public Player(GamePanel gp, KeyHandler keyHandler) {
         this.gp = gp;
         this.keyHandler = keyHandler;
 
         // Set initial position
+        width = gp.getTileSize();
+        height = gp.getTileSize();
         x = gp.getScreenWidth() / 2 - width / 2;
         y = gp.getScreenHeight() - height - 20;
+
 
         // Load player image
         try {
@@ -41,6 +52,18 @@ public class Player {
 
         // Initialize hitbox
         hitbox = new Rectangle(x, y, width, height);
+    }
+    public void applyShipStats(Ship ship) {
+        this.speed = ship.getSpeed();          // Set movement speed
+        this.maxHealth = ship.getHealth();     // Set max health
+        this.lives = maxHealth;              // For shooting
+        setImage(ship.getImage());            // Change appearance
+    }
+
+    public void setImage(BufferedImage image) {
+        if (image != null) {
+            this.image = image; // Make sure hitbox matches new size
+        }
     }
 
     public void update() {
@@ -54,15 +77,12 @@ public class Player {
         hitbox.x = x;
         hitbox.y = y;
 
-        // Shooting
-        if (shootCooldown > 0) {
-            shootCooldown--;
-        }
-
-        if (keyHandler.shootPressed && shootCooldown == 0) {
+        // Shooting with rate limiting
+        long currentTime = System.currentTimeMillis();
+        if (keyHandler.shootPressed && currentTime - lastShootTime >= SHOOT_DELAY) {
             gp.getProjectileManager().addPlayerProjectile(x + width / 2, y);
             gp.getSoundManager().playSound(SoundManager.SHOOT_SOUND);
-            shootCooldown = shootCooldownMax;
+            lastShootTime = currentTime;
         }
     }
 
@@ -70,6 +90,9 @@ public class Player {
         g2.drawImage(image, x, y, width, height, null);
     }
 
+    public Rectangle getHitbox() {
+        return hitbox;
+    }
 
     public void takeDamage() {
         lives--;
@@ -82,10 +105,18 @@ public class Player {
         gp.getSoundManager().playSound(SoundManager.HIT_SOUND);
     }
 
-    public Rectangle getHitbox() { return hitbox; }
-    public int getLives() { return lives; }
+    public int getLives() {
+        return lives;
+    }
+
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
+    public int getMaxHealth() { return maxHealth; }
+    public BufferedImage getImage() { return image; }
+
+    public void setX(int x){this.x = x;}
+    public void setY(int y){this.y = y;}
+    public void setlives(int lives){this.lives = lives;}
 }

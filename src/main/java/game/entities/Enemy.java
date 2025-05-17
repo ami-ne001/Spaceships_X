@@ -1,10 +1,12 @@
-package game;
+package game.entities;
+
+import game.GamePanel;
+import game.managers.SoundManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Random;
 
 public class Enemy {
     private GamePanel gp;
@@ -15,8 +17,8 @@ public class Enemy {
     private int width = 48;
     private int height = 48;
     private int health;
-    private int points;
     private int type;
+    private int points;
 
     // Enemy image
     private BufferedImage image;
@@ -25,11 +27,10 @@ public class Enemy {
     // Movement pattern
     private int movementPattern;
     private int movementCounter = 0;
-    private Random random = new Random();
 
     // Shooting
-    private int shootCooldown = 0;
-    private int shootCooldownMax = 40;
+    private int shootTimer = 0;
+    private int shootInterval = 120;
 
     public Enemy(GamePanel gp, int x, int y, int type) {
         this.gp = gp;
@@ -78,16 +79,17 @@ public class Enemy {
     }
 
     public void update() {
+        // Basic movement
+        y += speed;
+
+        // Movement patterns
         switch (movementPattern) {
             case 0: // Straight down
-                y += speed;
                 break;
             case 1: // Zigzag
-                y += speed;
                 x += (int)(Math.sin(movementCounter * 0.1) * 2);
                 break;
             case 2: // Zigzag
-                y += speed;
                 x += (int)(Math.cos(movementCounter * 0.1) * 3);
                 break;
         }
@@ -98,17 +100,10 @@ public class Enemy {
         hitbox.y = y;
 
         // Shooting
-        if (shootCooldown > 0) {
-            shootCooldown--;
-        } else if (type == 1 && random.nextInt(200) < 1) {   // 0.5% de chance de tirer
+        shootTimer++;
+        if (shootTimer >= shootInterval) {
             gp.getProjectileManager().addEnemyProjectile(x + width / 2, y + height);
-            shootCooldown = shootCooldownMax;
-        } else if (type == 2 && random.nextInt(100) < 1) {   // 1% de chance de tirer
-            gp.getProjectileManager().addEnemyProjectile(x + width / 2, y + height);
-            shootCooldown = shootCooldownMax;
-        } else if (type == 3 && random.nextInt(50) < 1) {   // 2% de chance de tirer
-            gp.getProjectileManager().addEnemyProjectile(x + width / 2, y + height);
-            shootCooldown = shootCooldownMax;
+            shootTimer = 0;
         }
     }
 
@@ -122,21 +117,22 @@ public class Enemy {
             gp.getSoundManager().playSound(SoundManager.EXPLOSION_SOUND);
             gp.addScore(points);
             gp.getEnemyManager().removeEnemy(this);
-
-            // Create explosion animation
             gp.getProjectileManager().addExplosion(x + width / 2, y + height / 2);
             return;
         }
         gp.getSoundManager().playSound(SoundManager.HIT_SOUND);
     }
 
-
+    public Rectangle getHitbox() {
+        return hitbox;
+    }
     public boolean isOffScreen() {
         return y > gp.getScreenHeight();
     }
-    public Rectangle getHitbox() { return hitbox; }
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
+    public int getType() { return type; }
+    public int getHealth() { return health; }
 }

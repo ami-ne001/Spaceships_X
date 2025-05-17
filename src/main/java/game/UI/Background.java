@@ -1,4 +1,6 @@
-package game;
+package game.UI;
+
+import game.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -9,6 +11,7 @@ public class Background {
     private GamePanel gp;
     private BufferedImage image;
 
+
     public Background(GamePanel gp) {
         this.gp = gp;
         try {
@@ -17,6 +20,7 @@ public class Background {
             e.printStackTrace();
         }
     }
+
 
     public void draw(Graphics2D g2) {
         g2.drawImage(image, 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);

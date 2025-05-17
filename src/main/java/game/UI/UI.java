@@ -1,4 +1,6 @@
-package game;
+package game.UI;
+
+import game.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -15,7 +17,7 @@ public class UI {
         arial_20 = new Font("Arial", Font.PLAIN, 20);
 
         try {
-            heartImage = ImageIO.read(getClass().getResourceAsStream("/player/playership1.png"));
+            heartImage = ImageIO.read(getClass().getResourceAsStream("/player/heart.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,7 +44,7 @@ public class UI {
         }
     }
 
-    private void drawGameOverScreen(Graphics2D g2) {
+    public void drawGameOverScreen(Graphics2D g2) {
         g2.setColor(new Color(0, 0, 0, 150));
         g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
 

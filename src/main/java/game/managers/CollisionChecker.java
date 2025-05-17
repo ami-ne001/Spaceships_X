@@ -1,4 +1,11 @@
-package game;
+package game.managers;
+
+import game.GamePanel;
+import game.entities.Enemy;
+import game.entities.Player;
+import game.entities.Projectile;
+
+import java.util.List;
 
 public class CollisionChecker {
     private GamePanel gp;
@@ -11,11 +18,15 @@ public class CollisionChecker {
         Player player = gp.getPlayer();
         EnemyManager enemyManager = gp.getEnemyManager();
         ProjectileManager projectileManager = gp.getProjectileManager();
+        
+        // Get thread-safe copies of collections
+        List<Projectile> projectiles = projectileManager.getProjectiles();
+        List<Enemy> enemies = enemyManager.getEnemies();
 
         // Check player-projectile collisions with enemies
-        for (Projectile projectile : projectileManager.getProjectiles()) {
+        for (Projectile projectile : projectiles) {
             if (projectile.isPlayerProjectile()) {
-                for (Enemy enemy : enemyManager.getEnemies()) {
+                for (Enemy enemy : enemies) {
                     if (projectile.getHitbox().intersects(enemy.getHitbox())) {
                         enemy.takeDamage();
                         projectile.setActive(false);
@@ -26,7 +37,7 @@ public class CollisionChecker {
         }
 
         // Check enemy-projectile collisions with player
-        for (Projectile projectile : projectileManager.getProjectiles()) {
+        for (Projectile projectile : projectiles) {
             if (!projectile.isPlayerProjectile() && projectile.getHitbox().intersects(player.getHitbox())) {
                 player.takeDamage();
                 projectile.setActive(false);
@@ -36,7 +47,7 @@ public class CollisionChecker {
         }
 
         // Check player-enemy collisions
-        for (Enemy enemy : enemyManager.getEnemies()) {
+        for (Enemy enemy : enemies) {
             if (enemy.getHitbox().intersects(player.getHitbox())) {
                 player.takeDamage();
                 enemyManager.removeEnemy(enemy);

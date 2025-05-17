@@ -1,4 +1,4 @@
-package game;
+package game.managers;
 
 import javax.sound.sampled.*;
 import java.io.IOException;
@@ -9,7 +9,6 @@ public class SoundManager {
     public static final int SHOOT_SOUND = 1;
     public static final int EXPLOSION_SOUND = 2;
     public static final int HIT_SOUND = 3;
-    public static final int GAMEOVER_SOUND = 4;
 
     private Clip[] sounds;
     private Clip backgroundMusic;
@@ -17,7 +16,7 @@ public class SoundManager {
     private boolean soundOn = true;
 
     public SoundManager() {
-        sounds = new Clip[5];
+        sounds = new Clip[4];
         loadSounds();
     }
 
@@ -46,12 +45,6 @@ public class SoundManager {
             audioIn = AudioSystem.getAudioInputStream(url);
             sounds[HIT_SOUND] = AudioSystem.getClip();
             sounds[HIT_SOUND].open(audioIn);
-
-            // Load hit sound
-            url = getClass().getResource("/sound/gameover.wav");
-            audioIn = AudioSystem.getAudioInputStream(url);
-            sounds[GAMEOVER_SOUND] = AudioSystem.getClip();
-            sounds[GAMEOVER_SOUND].open(audioIn);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
@@ -78,6 +71,11 @@ public class SoundManager {
             sounds[soundType].start();
         }
     }
+    
+    public void playGameOverSound() {
+        stopBackgroundMusic();
+        playSound(EXPLOSION_SOUND);
+    }
 
     public void toggleMusic() {
         musicOn = !musicOn;
@@ -88,7 +86,5 @@ public class SoundManager {
         }
     }
 
-    public void toggleSound() {
-        soundOn = !soundOn;
-    }
+    public void toggleSound() { soundOn = !soundOn; }
 }

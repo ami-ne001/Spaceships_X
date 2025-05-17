@@ -1,4 +1,6 @@
-package game;
+package game.entities;
+
+import game.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -45,7 +47,5 @@ public class Explosion {
         }
     }
 
-    public boolean isFinished() {
-        return finished;
-    }
+    public boolean isFinished() { return finished; }
 }
